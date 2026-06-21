@@ -1,0 +1,35 @@
+RELATÓRIO — Pipeline 5G-ORAN-IDD (Network Dataset)
+============================================================
+
+1. DATASET
+   Total de registros: 1.723.817
+   Amostra de trabalho: 120,000 (estratificada, 20,000/classe)
+   Features originais: 26 | Após engenharia: 28
+   Features selecionadas (top-15): dst_port, http_status_error, conn_state_enc, log_dst_bytes, src_port, duration, log_files_total_bytes, dst_bytes, bytes_per_pkt_dst, log_src_ip_bytes, src_ip_bytes, is_file_transfered, files_total_bytes, byte_ratio, log_dst_ip_bytes
+
+2. CLASSES
+   dos              632,507 registros
+   ddos             420,282 registros
+   web              288,304 registros
+   probe            183,293 registros
+   benign           170,865 registros
+   bruteforce        28,566 registros
+
+3. RESULTADOS DOS MODELOS
+                     Acc (multi)  F1-macro (multi)  F1-w (multi)  Acc (bin)  F1 (bin)  Tempo (s)
+Modelo                                                                                          
+Decision Tree              94.58             94.65         94.65      96.67     98.02        0.4
+Random Forest              94.92             94.99         94.99      96.97     98.21        5.7
+Gradient Boosting          94.67             94.73         94.73      96.54     97.95      116.0
+Logistic Regression        80.68             80.69         80.69      93.85     96.43        2.1
+KNN (k=5)                  93.58             93.66         93.66      96.20     97.74        1.2
+
+4. MELHOR MODELO: Random Forest
+   F1-macro (multi): 94.99%
+   Accuracy (multi): 94.92%
+
+5. ARQUIVOS GERADOS
+   oran_dataset_reduced.csv   — dataset reduzido (120,000 x 18)
+   fig1_eda.png               — análise exploratória
+   fig2_resultados_ml.png     — comparativo de modelos + confusion matrix
+   fig3_features_por_classe.png — distribuição de features por classe

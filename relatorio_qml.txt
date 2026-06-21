@@ -1,0 +1,55 @@
+RELATÓRIO — Pipeline QML | Netslab-5G-ORAN-IDD
+============================================================
+
+CONFIGURAÇÃO DO EXPERIMENTO
+  Qubits:       6  |  Hilbert dim: 64
+  Feature map:  ZZFeatureMap (reps=2) — interações ZZ entre qubits vizinhos
+  Ansatz VQC:   2 camadas RyRz + CNOT ring | otimizador: COBYLA
+  Amostras:     1500 (250/classe) | Treino=1125 | Teste=375
+  Features:     dst_port, conn_state_enc, log_dst_bytes, duration, byte_ratio, bytes_per_pkt_dst
+  Normalização: MinMaxScaler → [0, π]
+
+RESULTADOS — MODELOS QUÂNTICOS
+  QKSVM (Quantum Kernel SVM)
+    K(xi,xj) = |⟨φ(xi)|φ(xj)⟩|²  |  Kernel matrix em 5.3s
+    Acc=0.9253 | F1=0.9567 | AUC=0.8508
+    Complexidade: O(N²·2^n) = O(N²·64)
+
+  VQC (Variational Quantum Classifier)
+    Parâmetros: 2×6×2 = 24 | Treino: 100 amostras | 39.6s
+    Acc=0.8133 | F1=0.8826 | AUC=0.7939
+    Convergência: False | Loss final: 0.5247
+
+  QIK-SVM (Quantum-Inspired Kernel) — multiclasse
+    Fourier encoding: φ(x)=[cos(x),sin(x),cos(2x),sin(2x)]  |  0.014s
+    Acc=0.8107 | F1-macro=0.8078
+
+RESULTADOS — MODELOS CLÁSSICOS (mesma amostra)
+  SVM-RBF:  Acc=0.9173 | F1=0.9525 | AUC=0.8428 | 0.046s
+  RF:       Acc=0.8853 | F1-macro=0.8850 | 0.076s
+  LR:       Acc=0.9093 | F1=0.9477 | AUC=0.8582 | 0.005s
+
+ANÁLISE: QUANDO QML FARIA SENTIDO EM O-RAN?
+  * Com hardware quântico real, o QKSVM elimina o custo O(2^n) da simulação.
+  * O QIK-SVM é hoje o mais viável: kernel expressivo + custo polinomial.
+  * O VQC é análogo a uma rede neural rasa quântica — precisa de mais qubits
+    e mais dados para superar SVMs clássicos na era NISQ.
+  * Para near-RT RIC (<10ms): apenas QIK-SVM é diretamente aplicável.
+  * Vantagem potencial do QML: eficiência em dados de alta dimensão com
+    estrutura quântica (ex: canais de propagação em mmWave/5G).
+
+CURVA DE APRENDIZADO (QKSVM vs SVM-RBF)
+  n_treino | QKSVM   | SVM-RBF | ΔQKSVM-RBF
+        30 | 0.9040  | 0.8347  | +0.0693
+        50 | 0.9200  | 0.8347  | +0.0853
+        80 | 0.9120  | 0.9200  | -0.0080
+       120 | 0.9227  | 0.9147  | +0.0080
+       180 | 0.9227  | 0.9173  | +0.0053
+       250 | 0.9227  | 0.9173  | +0.0053
+
+ARQUIVOS GERADOS
+  qml_fig1_arquitetura.png  — circuito, Hilbert, kernel matrix, PCA, overview
+  qml_fig2_desempenho.png   — curva de aprendizado, ROC, loss VQC, F1 vs tempo
+  qml_fig3_kernel_cm.png    — distribuição do kernel, confusion matrices
+  qml_fig4_multiclasse.png  — QIK-SVM multiclasse, F1 por classe vs RF
+  qml_pipeline.py           — código completo reproduzível
